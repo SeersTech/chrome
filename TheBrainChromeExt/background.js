@@ -1,4 +1,4 @@
-var url = "http://ec2-54-254-170-66.ap-southeast-1.compute.amazonaws.com/exp1/browserHistory";
+var url = "http://ec2-54-254-176-201.ap-southeast-1.compute.amazonaws.com/exp1/browserHistory";
 var name = "";
 
 function saveChanges(name, callback) {
