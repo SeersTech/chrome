@@ -4,16 +4,21 @@ var name = "";
 function saveChanges(name, callback) {
 	chrome.storage.sync.set({'name': name}, callback);
 }
-
-function sendData(name, hi){
+function prepData(name, tab, impBrowser){
 	var obj = {}, xhr;
 	obj.name = name;
-	obj.url = hi.url;
-	obj.date = hi.lastVisitTime;
-	obj.title = hi.title;
-	obj.typedCount = hi.typedCount;
+	obj.url = tab.url;
+	obj.date = tab.lastVisitTime;
+	obj.title = tab.title;
+	obj.typedCount = tab.typedCount;
 	obj.browser='yes';
-	
+	if(impBrowser == true)
+		obj.impBrowser = impBrowser;
+	return obj;
+}
+
+function sendData(obj){
+
 	xhr = new XMLHttpRequest();
 	xhr.open("POST", url);
 	xhr.setRequestHeader('Content-Type', 'application/json');
@@ -27,16 +32,18 @@ function sendData(name, hi){
 	xhr.send(JSON.stringify(obj));
 }
 
-chrome.history.onVisited.addListener(function (hi) {
+chrome.history.onVisited.addListener(function (tab) {
 	chrome.storage.sync.get("name", function(obj){	
 		if(obj.name === "" || obj.name === undefined) 
 		{
 			name = prompt("Please Enter your name : ", "");
 			saveChanges(name, function(){
-				sendData(name, hi);
+				data = prepData(name, tab, false);
+				sendData(data);
 			})
 		} else {
-			sendData(obj.name, hi);
+			data = prepData(obj.name, tab, false);
+			sendData(data);
 		}
 	});
 	
@@ -48,6 +55,22 @@ chrome.history.onVisited.addListener(function (hi) {
 		console.log("typedCount  " + hi.id);
 		*/		
 })
+chrome.browserAction.onClicked.addListener(function (tab) {
+	chrome.storage.sync.get("name", function(obj){	
+		if(obj.name === "" || obj.name === undefined) 
+		{
+			name = prompt("Please Enter your name : ", "");
+			saveChanges(name, function(){
+				data = prepData(name, tab, true);
+				sendData(data);
+			})
+		} else {
+			data = prepData(name, tab, true);
+			sendData(data);
+		}
+	});
+});
+
 /*
 chrome.tabs.onActivated.addListener(function (activeInfo) {
 console.log("Activated : tab : " + activeInfo.tabId);
