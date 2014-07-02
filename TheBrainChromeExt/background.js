@@ -17,7 +17,7 @@ function prepData(name, tab, impBrowser){
 	return obj;
 }
 
-function sendData(obj){
+function sendData(obj, callback){
 
 	xhr = new XMLHttpRequest();
 	xhr.open("POST", url);
@@ -25,8 +25,10 @@ function sendData(obj){
 	xhr.onreadystatechange = function () {
 		if (xhr.readyState == 4 && xhr.status == 200) {
 			console.log('Success Response : ' + xhr.responseText);
+			callback("success");
 		} else {
 			console.log('Response Failed');
+			callback("failed");
 		}
 	}
 	xhr.send(JSON.stringify(obj));
@@ -66,7 +68,16 @@ chrome.browserAction.onClicked.addListener(function (tab) {
 			})
 		} else {
 			data = prepData(name, tab, true);
-			sendData(data);
+			sendData(data, function(status){
+				if(status == "success")
+				{
+					chrome.browserAction.setBadgeText({text:"Imp",tabId:tab.id});
+				}
+				else
+				{
+					chrome.browserAction.setBadgeText({text:"Fail",tabId:tab.id});
+				}
+			});
 		}
 	});
 });
